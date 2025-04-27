@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网易云音乐解析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        .logo {
+            width: 40px;
+            height: 40px;
+        }
+        h1 {
+            color: #333;
+            margin: 0;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1db954;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #1ed760;
+        }
+        .result {
+            margin-top: 20px;
+            display: none;
+        }
+        .song-info {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .song-cover {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+        .song-details {
+            flex: 1;
+        }
+        .download-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .download-btn {
+            padding: 8px 15px;
+            background-color: #1db954;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .download-btn:hover {
+            background-color: #1ed760;
+        }
+        .download-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .lyrics {
+            margin-top: 20px;
+            white-space: pre-line;
+            line-height: 1.6;
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: #333;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+        }
+        .lyrics::-webkit-scrollbar {
+            width: 6px;
+        }
+        .lyrics::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .lyrics::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        .lyrics::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .lyrics p {
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        .lyrics p:hover {
+            color: #1db954;
+            transform: scale(1.02);
+        }
+        .lyrics .time {
+            color: #999;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .lyrics .translation {
+            color: #666;
+            font-style: italic;
+            margin-left: 20px;
+        }
+        .loading {
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://p1.music.126.net/tBTNafgjNnTL1KlZMt7lVA==/18885211718935735.jpg" alt="网易云音乐" class="logo">
+            <h1>网易云音乐解析</h1>
+        </div>
+        <div class="input-group">
+            <input type="text" id="musicUrl" placeholder="请输入网易云音乐分享链接">
+            <select id="quality">
+                <option value="standard">标准音质</option>
+                <option value="exhigh">极高品质</option>
+                <option value="lossless">无损音质</option>
+                <option value="hires">Hi-Res音质</option>
+                <option value="jyeffect">高清环绕声</option>
+                <option value="sky">沉浸环绕声</option>
+                <option value="jymaster" selected>超清母带</option>
+            </select>
+            <button onclick="searchMusic()">查询音乐</button>
+        </div>
+        <div class="loading" id="loading">加载中...</div>
+        <div class="result" id="result">
+            <div class="song-info">
+                <img id="songCover" class="song-cover" src="" alt="封面">
+                <div class="song-details">
+                    <h2 id="songName"></h2>
+                    <p id="artistName"></p>
+                    <p id="albumName"></p>
+                    <p id="qualityInfo"></p>
+                    <p id="fileSize"></p>
+                    <div class="download-buttons">
+                        <button class="download-btn" onclick="downloadMusic()">下载音乐</button>
+                        <button class="download-btn" onclick="downloadLyrics()">下载歌词(带时间)</button>
+                        <button class="download-btn" onclick="downloadPureLyrics()">下载歌词(纯文本)</button>
+                    </div>
+                    <audio id="audioPlayer" controls style="width: 100%; margin-top: 10px;"></audio>
+                </div>
+            </div>
+            <div class="lyrics" id="lyrics"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMusicData = null;
+
+        async function searchMusic() {
+            const musicUrl = document.getElementById('musicUrl').value;
+            const quality = document.getElementById('quality').value;
+            
+            if (!musicUrl) {
+                alert('请输入音乐链接');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            try {
+                const response = await fetch(`https://api.kxzjoker.cn/api/163_music?url=${encodeURIComponent(musicUrl)}&level=${quality}&type=json`);
+                const data = await response.json();
+
+                if (data.status === 200) {
+                    currentMusicData = data;
+                    document.getElementById('songName').textContent = data.name;
+                    document.getElementById('artistName').textContent = `歌手：${data.ar_name}`;
+                    document.getElementById('albumName').textContent = `专辑：${data.al_name}`;
+                    document.getElementById('qualityInfo').textContent = `音质：${data.level}`;
+                    document.getElementById('fileSize').textContent = `文件大小：${data.size}`;
+                    document.getElementById('songCover').src = data.pic;
+                    
+                    const lyricsElement = document.getElementById('lyrics');
+                    const lyrics = data.lyric.split('\n');
+                    let formattedLyrics = '';
+                    
+                    lyrics.forEach(line => {
+                        if (line.includes(']')) {
+                            const timeMatch = line.match(/\[(.*?)\]/);
+                            const text = line.replace(/\[.*?\]/g, '').trim();
+                            if (timeMatch && text) {
+                                formattedLyrics += `<p><span class="time">${timeMatch[1]}</span>${text}</p>`;
+                            }
+                        } else if (line.trim()) {
+                            formattedLyrics += `<p>${line}</p>`;
+                        }
+                    });
+                    
+                    lyricsElement.innerHTML = formattedLyrics;
+                    document.getElementById('audioPlayer').src = data.url;
+                    
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    alert('获取音乐信息失败');
+                }
+            } catch (error) {
+                alert('请求失败，请稍后重试');
+                console.error(error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function downloadMusic() {
+            if (!currentMusicData || !currentMusicData.url) {
+                alert('请先搜索音乐');
+                return;
+            }
+            
+            window.location.href = currentMusicData.url;
+        }
+
+        function downloadLyrics() {
+            if (!currentMusicData || !currentMusicData.lyric) {
+                alert('请先搜索音乐');
+                return;
+            }
+            
+            const lyrics = currentMusicData.lyric;
+            const blob = new Blob([lyrics], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentMusicData.name} - ${currentMusicData.ar_name} (带时间).txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadPureLyrics() {
+            if (!currentMusicData || !currentMusicData.lyric) {
+                alert('请先搜索音乐');
+                return;
+            }
+            
+            const lyrics = currentMusicData.lyric.split('\n')
+                .map(line => {
+                    const text = line.replace(/\[.*?\]/g, '').trim();
+                    return text ? text : null;
+                })
+                .filter(line => line !== null)
+                .join('\n');
+            
+            const blob = new Blob([lyrics], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentMusicData.name} - ${currentMusicData.ar_name} (纯文本).txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书摘生成器</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #e2e8f0;
+            --border-color: #334155;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent-color: #8b5cf6;
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            font-size: 2.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .color-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .color-input {
+            position: relative;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 45px;
+            padding: 0.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            background: var(--bg-color);
+            transition: all 0.3s ease;
+        }
+
+        input[type="color"]:hover {
+            border-color: var(--primary-color);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2.5rem;
+        }
+
+        button {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:first-child {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        button:first-child:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .download-btn {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        .preview {
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            background: var(--bg-color);
+            border-radius: 1rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview img {
+            max-width: 100%;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .preview img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .color-group {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* 添加滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>书摘生成器</h1>
+        <div class="form-group">
+            <label for="text">书摘内容：</label>
+            <textarea id="text" placeholder="请输入书摘内容，使用\n换行"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="author">作者：</label>
+            <input type="text" id="author" placeholder="请输入作者和书名">
+        </div>
+        <div class="form-group">
+            <label>颜色设置：</label>
+            <div class="color-group">
+                <div class="color-input">
+                    <label for="textColor">文字颜色：</label>
+                    <input type="color" id="textColor" value="#009EFF">
+                </div>
+                <div class="color-input">
+                    <label for="bgColor">背景颜色：</label>
+                    <input type="color" id="bgColor" value="#ffffff">
+                </div>
+            </div>
+        </div>
+        <div class="button-group">
+            <button onclick="generateImage()">生成图片</button>
+            <button class="download-btn" onclick="downloadImage()">下载图片</button>
+        </div>
+        <div class="loading" id="loading"></div>
+        <div class="preview" id="preview"></div>
+    </div>
+
+    <script>
+        let currentImageUrl = '';
+
+        function generateImage() {
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            
+            const text = document.getElementById('text').value;
+            const author = document.getElementById('author').value;
+            const textColor = document.getElementById('textColor').value.replace('#', '');
+            const bgColor = document.getElementById('bgColor').value.replace('#', '');
+            
+            let url = `https://api.vvhan.com/api/artText?text=${encodeURIComponent(text)}`;
+            
+            if (author) {
+                url += `&auther=${encodeURIComponent(author)}`;
+            }
+            
+            if (textColor) {
+                url += `&color=${textColor}`;
+            }
+            
+            if (bgColor) {
+                url += `&bgcolor=${bgColor}`;
+            }
+
+            currentImageUrl = url;
+            const preview = document.getElementById('preview');
+            
+            const img = new Image();
+            img.onload = function() {
+                preview.innerHTML = `<img src="${url}" alt="生成的书摘图片">`;
+                loading.style.display = 'none';
+            };
+            img.src = url;
+        }
+
+        function downloadImage() {
+            if (!currentImageUrl) {
+                alert('请先生成图片！');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+
+            fetch(currentImageUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '书摘图片.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    loading.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('下载失败:', error);
+                    alert('下载失败，请重试！');
+                    loading.style.display = 'none';
+                });
+        }
+    </script>
+</body>
+</html>
