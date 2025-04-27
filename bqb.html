@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表情包查找器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .search-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        #searchInput {
+            width: 60%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        #searchButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        #searchButton:hover {
+            background-color: #45a049;
+        }
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .emoji-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .emoji-item:hover {
+            transform: scale(1.05);
+        }
+        .emoji-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .emoji-title {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            margin: 20px 0;
+        }
+        .error-message {
+            text-align: center;
+            color: #ff4444;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        .no-results {
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="输入关键词搜索表情包...">
+        <button id="searchButton">搜索</button>
+    </div>
+    <div id="statusMessage"></div>
+    <div class="results-container" id="resultsContainer"></div>
+
+    <script>
+        const API_KEY = '你的KEY'; // 请替换为你的API密钥
+        const searchButton = document.getElementById('searchButton');
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const statusMessage = document.getElementById('statusMessage');
+
+        function showLoading() {
+            statusMessage.innerHTML = '<div class="loading">正在搜索中...</div>';
+        }
+
+        function showError(message) {
+            statusMessage.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function showNoResults() {
+            statusMessage.innerHTML = '<div class="no-results">未找到相关表情包，请尝试其他关键词</div>';
+        }
+
+        async function searchEmojis(keyword) {
+            showLoading();
+            resultsContainer.innerHTML = '';
+            
+            try {
+                const response = await fetch(`http://api.zhyunxi.com/api.php?api=32&key=${API_KEY}&text=${encodeURIComponent(keyword)}`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data && data.data[0] && data.data[0].list && data.data[0].list.length > 0) {
+                    displayResults(data.data[0].list);
+                    statusMessage.innerHTML = '';
+                } else {
+                    showNoResults();
+                }
+            } catch (error) {
+                console.error('搜索出错:', error);
+                showError('搜索出错，请检查网络连接或稍后重试');
+            }
+        }
+
+        function displayResults(emojis) {
+            resultsContainer.innerHTML = '';
+            emojis.forEach(emoji => {
+                const emojiItem = document.createElement('div');
+                emojiItem.className = 'emoji-item';
+                emojiItem.innerHTML = `
+                    <img src="${emoji.url}" alt="${emoji.title}" loading="lazy">
+                    <div class="emoji-title">${emoji.title}</div>
+                `;
+                resultsContainer.appendChild(emojiItem);
+            });
+        }
+
+        searchButton.addEventListener('click', () => {
+            const keyword = searchInput.value.trim();
+            if (keyword) {
+                searchEmojis(keyword);
+            } else {
+                showError('请输入搜索关键词');
+            }
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const keyword = searchInput.value.trim();
+                if (keyword) {
+                    searchEmojis(keyword);
+                } else {
+                    showError('请输入搜索关键词');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

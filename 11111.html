@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天气与 IP 信息查询</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        input[type="text"]::placeholder {
+            color: #a0aec0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-blue-500 text-white py-6">
+        <div class="container mx-auto text-center">
+            <h1 class="text-3xl font-bold">天气与 IP 信息查询</h1>
+        </div>
+    </header>
+    <main class="container mx-auto py-8 px-4 flex-grow">
+        <!-- 天气查询部分 -->
+        <div class="bg-white shadow-md rounded p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4">天气查询</h2>
+            <div class="mb-4">
+                <label for="queryType" class="block text-gray-700 text-sm font-bold mb-2">查询方式</label>
+                <select id="queryType" class="form-select appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="city">城市</option>
+                    <option value="ip">IP 地址</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="queryInput" class="block text-gray-700 text-sm font-bold mb-2">输入查询内容</label>
+                <input type="text" id="queryInput" placeholder="请输入城市名或 IP 地址" class="form-input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+                <label for="weekQuery" class="inline-flex items-center">
+                    <input type="checkbox" id="weekQuery" class="form-checkbox h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <span class="ml-2 text-gray-700">查询一周天气</span>
+                </label>
+            </div>
+            <button id="searchButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">查询</button>
+        </div>
+        <div id="result" class="mt-8 bg-white shadow-md rounded p-6 hidden">
+            <h2 id="cityName" class="text-xl font-bold mb-2"></h2>
+            <p id="date" class="text-gray-600 mb-2"></p>
+            <p id="weatherType" class="text-2xl font-bold mb-2"></p>
+            <p id="temperature" class="text-lg mb-2"></p>
+            <p id="wind" class="text-gray-600 mb-2"></p>
+            <p id="airQuality" class="text-gray-600 mb-2"></p>
+            <p id="tip" class="text-gray-600"></p>
+        </div>
+        <div id="weatherError" class="mt-8 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 hidden">
+            <p id="weatherErrorMessage"></p>
+        </div>
+
+        <!-- IP 信息查询部分 -->
+        <div class="bg-white shadow-md rounded p-6">
+            <h2 class="text-xl font-bold mb-4">IP 信息查询</h2>
+            <div class="mb-4">
+                <label for="ipInput" class="block text-gray-700 text-sm font-bold mb-2">输入 IP 地址</label>
+                <input type="text" id="ipInput" placeholder="请输入 IP 地址" class="form-input block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+            <button id="ipSearchButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">查询</button>
+        </div>
+        <div id="ipResult" class="mt-8 bg-white shadow-md rounded p-6 hidden">
+            <h2 class="text-xl font-bold mb-2">IP 信息</h2>
+            <p id="ipAddress" class="text-gray-600 mb-2"></p>
+            <p id="country" class="text-gray-600 mb-2"></p>
+            <p id="province" class="text-gray-600 mb-2"></p>
+            <p id="city" class="text-gray-600 mb-2"></p>
+            <p id="isp" class="text-gray-600 mb-2"></p>
+        </div>
+        <div id="ipError" class="mt-8 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 hidden">
+            <p id="ipErrorMessage"></p>
+        </div>
+    </main>
+    <footer class="bg-gray-200 text-gray-600 py-4 text-center">
+        <p>&copy; 2025 天气与 IP 信息查询</p>
+    </footer>
+    <script>
+        const weatherApiUrl = 'https://api.vvhan.com/api/weather';
+        const ipApiUrl = 'https://api.vvhan.com/api/ipInfo';
+        const searchButton = document.getElementById('searchButton');
+        const queryType = document.getElementById('queryType');
+        const queryInput = document.getElementById('queryInput');
+        const weekQuery = document.getElementById('weekQuery');
+        const result = document.getElementById('result');
+        const weatherError = document.getElementById('weatherError');
+        const ipSearchButton = document.getElementById('ipSearchButton');
+        const ipInput = document.getElementById('ipInput');
+        const ipResult = document.getElementById('ipResult');
+        const ipError = document.getElementById('ipError');
+
+        searchButton.addEventListener('click', async () => {
+            const inputValue = queryInput.value;
+            if (!inputValue) {
+                showWeatherError('请输入查询内容');
+                return;
+            }
+
+            let url = weatherApiUrl;
+            if (queryType.value === 'city') {
+                url += `?city=${inputValue}`;
+            } else {
+                url += `?ip=${inputValue}`;
+            }
+
+            if (weekQuery.checked) {
+                url += '&type=week';
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    showWeatherResult(data);
+                } else {
+                    showWeatherError(data.message);
+                }
+            } catch (error) {
+                showWeatherError('请求出错，请稍后重试');
+            }
+        });
+
+        function showWeatherResult(data) {
+            result.classList.remove('hidden');
+            weatherError.classList.add('hidden');
+
+            document.getElementById('cityName').textContent = data.city || '未知城市';
+            document.getElementById('date').textContent = (data.data && data.data.date && data.data.week) ? `${data.data.date} ${data.data.week}` : '未知日期';
+            document.getElementById('weatherType').textContent = (data.data && data.data.type) ? data.data.type : '未知天气';
+            document.getElementById('temperature').textContent = (data.data && data.data.low && data.data.high) ? `${data.data.low} - ${data.data.high}` : '未知温度';
+            document.getElementById('wind').textContent = (data.data && data.data.fengxiang && data.data.fengli) ? `${data.data.fengxiang} ${data.data.fengli}` : '未知风向风力';
+            document.getElementById('airQuality').textContent = (data.air && data.air.aqi_name) ? `空气质量: ${data.air.aqi_name}` : '未知空气质量';
+            document.getElementById('tip').textContent = data.tip || '暂无建议';
+        }
+
+        function showWeatherError(message) {
+            weatherError.classList.remove('hidden');
+            result.classList.add('hidden');
+            document.getElementById('weatherErrorMessage').textContent = message;
+        }
+
+        ipSearchButton.addEventListener('click', async () => {
+            const ip = ipInput.value;
+            if (!ip) {
+                showIpError('请输入 IP 地址');
+                return;
+            }
+
+            let url = ipApiUrl;
+            if (ip) {
+                url += `?ip=${ip}`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    showIpResult(data);
+                } else {
+                    showIpError(data.message);
+                }
+            } catch (error) {
+                showIpError('请求出错，请稍后重试');
+            }
+        });
+
+        function showIpResult(data) {
+            ipResult.classList.remove('hidden');
+            ipError.classList.add('hidden');
+
+            document.getElementById('ipAddress').textContent = `IP 地址: ${data.ip}`;
+            document.getElementById('country').textContent = `国家: ${data.info.country || '未知'}`;
+            document.getElementById('province').textContent = `省份: ${data.info.prov || '未知'}`;
+            document.getElementById('city').textContent = `城市: ${data.info.city || '未知'}`;
+            document.getElementById('isp').textContent = `网络服务提供商: ${data.info.isp || '未知'}`;
+        }
+
+        function showIpError(message) {
+            ipError.classList.remove('hidden');
+            ipResult.classList.add('hidden');
+            document.getElementById('ipErrorMessage').textContent = message;
+        }
+    </script>
+</body>
+
+</html>
+    
