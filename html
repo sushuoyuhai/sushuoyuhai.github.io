@@ -4,8 +4,54 @@
     <meta charset="UTF-8">
     <meta http-equiv="refresh" content="0;url=NutssssIndex/index.html">
     <title>跳转中...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in;
+        }
+        p {
+            color: #333;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #2c3e50;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
-    <p>正在跳转，如果页面没有自动跳转，请<a href="NutssssIndex/index.html">点击这里</a>。</p>
+    <div class="container">
+        <p>正在跳转，如果页面没有自动跳转，请<a href="NutssssIndex/index.html">点击这里</a>。</p>
+    </div>
 </body>
 </html>
