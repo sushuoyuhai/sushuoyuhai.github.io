@@ -2,8 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=NutssssIndex/index.html">
-    <title>跳转中...</title>
+    <title>选择跳转目标</title>
     <style>
         body {
             margin: 0;
@@ -23,19 +22,27 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             animation: fadeIn 0.5s ease-in;
         }
-        p {
-            color: #333;
-            font-size: 1.2rem;
-            margin: 0;
+        select {
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #4a90e2;
+            border-radius: 5px;
+            margin: 20px 0;
+            width: 200px;
+            cursor: pointer;
         }
-        a {
-            color: #4a90e2;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        a:hover {
-            color: #2c3e50;
+        button:hover {
+            background-color: #357abd;
         }
         @keyframes fadeIn {
             from {
@@ -51,7 +58,23 @@
 </head>
 <body>
     <div class="container">
-        <p>正在跳转，如果页面没有自动跳转，请<a href="NutssssIndex/index.html">点击这里</a>。</p>
+        <h2>请选择跳转目标</h2>
+        <select id="targetSelect">
+            <option value="https://sushuoyuhai.github.io/NutssssIndex/index.html">主页</option>
+            <option value="https://sushuoyuhai.github.io/baidu.html">百度</option>
+            <option value="https://sushuoyuhai.github.io/music.html">网易云解析</option>
+            <option value="https://sushuoyuhai.github.io/sq.html">书摘生成器</option>
+            <option value="https://sushuoyuhai.github.io/Minecraft/index.html">Microsoft</option>
+        </select>
+        <br>
+        <button onclick="redirect()">跳转</button>
     </div>
+
+    <script>
+        function redirect() {
+            const target = document.getElementById('targetSelect').value;
+            window.location.href = target;
+        }
+    </script>
 </body>
 </html>
