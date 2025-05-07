@@ -6,13 +6,13 @@
     <title>选择跳转目标</title>
     <style>
         :root {
-            --primary-color: #4a90e2;
-            --primary-dark: #357abd;
-            --text-color: #2c3e50;
-            --container-bg: rgba(255, 255, 255, 0.92);
-            --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-            --radius: 16px;
-            --transition: all 0.3s ease;
+            --primary-color: #6c5ce7;
+            --primary-dark: #5649c0;
+            --text-color: #2d3436;
+            --container-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --radius: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -41,10 +41,10 @@
             height: 100%;
             z-index: -1;
             background: linear-gradient(
-                45deg,
-                #84fab0 0%,
-                #8fd3f4 50%,
-                #e0c3fc 100%
+                135deg,
+                #a8e6cf 0%,
+                #dcedc1 50%,
+                #ffd3b6 100%
             );
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
@@ -107,84 +107,95 @@
 
         .container {
             width: 100%;
-            max-width: 400px;
-            padding: 2rem;
+            max-width: 600px;
+            padding: 2.5rem;
             background: var(--container-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            backdrop-filter: blur(8px);
-            animation: slideUp 0.6s ease-out;
+            backdrop-filter: blur(12px);
+            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         h2 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            margin-bottom: 2rem;
             color: var(--text-color);
-            font-weight: 600;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        select {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 1rem;
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .option-button {
+            padding: 14px 18px;
+            font-size: 1.1rem;
             background: white;
+            border: 2px solid rgba(108, 92, 231, 0.2);
+            border-radius: 12px;
             color: var(--text-color);
             cursor: pointer;
             transition: var(--transition);
-            margin: 1rem 0;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234a90e2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
+            text-align: center;
         }
 
-        select:focus {
-            outline: none;
-            border-color: var(--primary-dark);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        .option-button:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.1);
+            background: rgba(108, 92, 231, 0.05);
+        }
+
+        .option-button.selected {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-color: transparent;
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            font-size: 1.1rem;
-            background: var(--primary-color);
+            padding: 16px;
+            font-size: 1.2rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             transition: var(--transition);
             font-weight: 600;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.2);
         }
 
         button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-        }
-
-        button:active {
-            transform: translateY(0);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
         }
 
         .countdown-timer {
-            margin: 1rem 0;
-            padding: 8px 16px;
-            background: rgba(74, 144, 226, 0.1);
-            border-radius: 20px;
+            margin: 1.5rem 0;
+            padding: 10px 20px;
+            background: rgba(108, 92, 231, 0.1);
+            border-radius: 25px;
             color: var(--primary-color);
-            font-size: 1rem;
+            font-size: 1.1rem;
             display: inline-block;
             transition: var(--transition);
+            font-weight: 500;
+            text-align: center;
+            width: 100%;
         }
 
         @keyframes slideUp {
@@ -227,13 +238,14 @@
     <div class="animated-background"></div>
     <div class="container">
         <h2>请选择跳转目标</h2>
-        <select id="targetSelect">
-            <option value="/NutssssIndex/index.html">主页</option>
-            <option value="/baidu.html">百度</option>
-            <option value="/music.html">网易云解析</option>
-            <option value="/sq.html">书摘生成器</option>
-            <option value="/Minecraft/index.html">Microsoft</option>
-        </select>
+        <div class="options-container">
+            <button class="option-button" data-target="/NutssssIndex/index.html">主页</button>
+            <button class="option-button" data-target="/baidu.html">百度</button>
+            <button class="option-button" data-target="/bing.html">bing</button>
+            <button class="option-button" data-target="/music.html">网易云解析</button>
+            <button class="option-button" data-target="/sq.html">书摘生成器</button>
+            <button class="option-button" data-target="/Minecraft/index.html">Microsoft</button>
+        </div>
         <div id="countdown" class="countdown-timer">将在 <span id="countdownNum">5</span> 秒后自动跳转主页…</div>
         <br>
         <button onclick="redirect()">跳转</button>
@@ -243,11 +255,43 @@
         let autoRedirectTimer = null;
         let countdownInterval = null;
         let countdownNum = 5;
+        let selectedTarget = '/NutssssIndex/index.html';
 
         window.onload = function() {
             // 显示倒计时
             document.getElementById('countdown').style.display = 'block';
             document.getElementById('countdownNum').textContent = countdownNum;
+
+            // 为所有选项按钮添加点击事件
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // 移除其他按钮的选中状态
+                    document.querySelectorAll('.option-button').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    // 添加当前按钮的选中状态
+                    this.classList.add('selected');
+                    // 更新选中的目标
+                    selectedTarget = this.dataset.target;
+                    
+                    // 取消自动跳转和倒计时
+                    if (autoRedirectTimer) {
+                        clearTimeout(autoRedirectTimer);
+                        autoRedirectTimer = null;
+                    }
+                    if (countdownInterval) {
+                        clearInterval(countdownInterval);
+                        countdownInterval = null;
+                    }
+                    document.getElementById('countdown').style.opacity = 0;
+                    setTimeout(function() {
+                        document.getElementById('countdown').style.display = 'none';
+                    }, 300);
+                });
+            });
+
+            // 默认选中第一个选项
+            document.querySelector('.option-button').classList.add('selected');
 
             countdownInterval = setInterval(function() {
                 countdownNum--;
@@ -259,29 +303,12 @@
 
             // 5秒后自动跳转到第一个选项
             autoRedirectTimer = setTimeout(function() {
-                window.location.href = document.getElementById('targetSelect').value;
+                window.location.href = selectedTarget;
             }, 5000);
-
-            // 监听下拉框变化，用户选择其他选项就取消自动跳转和倒计时
-            document.getElementById('targetSelect').addEventListener('change', function() {
-                if (autoRedirectTimer) {
-                    clearTimeout(autoRedirectTimer);
-                    autoRedirectTimer = null;
-                }
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                    countdownInterval = null;
-                }
-                document.getElementById('countdown').style.opacity = 0;
-                setTimeout(function() {
-                    document.getElementById('countdown').style.display = 'none';
-                }, 300);
-            });
         };
 
         function redirect() {
-            const target = document.getElementById('targetSelect').value;
-            window.location.href = target;
+            window.location.href = selectedTarget;
         }
     </script>
 </body>
