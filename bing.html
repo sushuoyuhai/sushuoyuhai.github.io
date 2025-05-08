@@ -164,10 +164,61 @@
             font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
         }
 
         .search-icons i:hover {
             transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .search-icons i.fa-microphone {
+            position: relative;
+        }
+
+        .search-icons i.fa-microphone.listening {
+            color: #ff5722;
+            animation: pulse 1.5s infinite;
+        }
+
+        .search-icons i.fa-microphone.listening::after {
+            content: '点击停止';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 87, 34, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 87, 34, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 10px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
         }
 
         .image-info {
@@ -206,6 +257,93 @@
                 bottom: 20px;
             }
         }
+
+        .status-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            display: none;
+            z-index: 1000;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 80%;
+            text-align: center;
+        }
+
+        .status-toast.error {
+            background: rgba(255, 87, 34, 0.9);
+        }
+
+        .status-toast.show {
+            display: block;
+            animation: slideDown 0.3s ease forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -20px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        .status-toast .cancel-btn {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .status-toast .cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .mic-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+        }
+
+        .mic-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+        }
+
+        .search-icons i:hover .mic-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
 </head>
 <body>
@@ -227,7 +365,9 @@
                 <div class="search-box">
                     <input type="text" name="q" class="search-input" placeholder="搜索网页、图片、视频..." autocomplete="off">
                     <div class="search-icons">
-                        <i class="fas fa-microphone"></i>
+                        <i class="fas fa-microphone" id="micBtn" title="点击开始语音识别">
+                            <span class="mic-tooltip">点击开始语音识别</span>
+                        </i>
                         <i class="fas fa-search" onclick="document.getElementById('searchForm').submit()"></i>
                     </div>
                 </div>
@@ -254,6 +394,144 @@
                 nav.classList.remove('scrolled');
             }
         });
+
+        // 语音识别功能
+        const micBtn = document.getElementById('micBtn');
+        let recognition = null;
+        let isListening = false;
+
+        // 创建状态提示元素
+        const statusDiv = document.createElement('div');
+        statusDiv.className = 'status-toast';
+        document.body.appendChild(statusDiv);
+
+        // 初始化语音识别
+        function initSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                micBtn.style.display = 'none';
+                return;
+            }
+
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = 'zh-CN';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                isListening = true;
+                micBtn.classList.add('listening');
+                showStatus('正在聆听...');
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micBtn.classList.remove('listening');
+                hideStatus();
+            };
+
+            recognition.onerror = (event) => {
+                isListening = false;
+                micBtn.classList.remove('listening');
+                let errorMsg = '语音识别失败: ';
+                
+                switch(event.error) {
+                    case 'no-speech':
+                        errorMsg += '没有检测到语音';
+                        break;
+                    case 'aborted':
+                        errorMsg += '识别被中止';
+                        break;
+                    case 'audio-capture':
+                        errorMsg += '无法捕获音频';
+                        break;
+                    case 'network':
+                        errorMsg += '网络错误';
+                        break;
+                    case 'not-allowed':
+                        errorMsg += '没有麦克风权限';
+                        break;
+                    default:
+                        errorMsg += event.error;
+                }
+                showStatus(errorMsg, true);
+            };
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript = transcript;
+                    } else {
+                        interimTranscript = transcript;
+                    }
+                }
+
+                if (interimTranscript) {
+                    showStatus('识别中: ' + interimTranscript);
+                }
+
+                if (finalTranscript) {
+                    document.querySelector('.search-input').value = finalTranscript;
+                    showStatus('识别完成！', false, 1000);
+                    document.getElementById('searchForm').submit();
+                }
+            };
+        }
+
+        // 显示状态提示
+        function showStatus(message, isError = false, duration = 0) {
+            if (isListening && !isError) {
+                message += '<span class="cancel-btn">点击停止</span>';
+            }
+            statusDiv.innerHTML = message;
+            statusDiv.className = 'status-toast' + (isError ? ' error' : '') + ' show';
+            
+            if (duration > 0) {
+                setTimeout(hideStatus, duration);
+            }
+
+            // 添加停止按钮点击事件
+            const cancelBtn = statusDiv.querySelector('.cancel-btn');
+            if (cancelBtn) {
+                cancelBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (recognition) {
+                        recognition.stop();
+                    }
+                };
+            }
+        }
+
+        // 隐藏状态提示
+        function hideStatus() {
+            statusDiv.className = 'status-toast';
+        }
+
+        // 麦克风按钮点击事件
+        micBtn.onclick = () => {
+            if (!recognition) {
+                showStatus('当前浏览器不支持语音识别，请使用最新版 Chrome 浏览器。', true);
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+                showStatus('已停止语音识别', false, 1000);
+                return;
+            }
+
+            try {
+                recognition.start();
+            } catch (e) {
+                showStatus('启动语音识别失败，请刷新页面重试', true);
+            }
+        };
+
+        // 初始化语音识别
+        initSpeechRecognition();
 
         // 搜索处理函数
         function handleSearch(event) {
