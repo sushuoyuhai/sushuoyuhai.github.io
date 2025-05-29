@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资本做局器</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <script type="text/javascript" async="" charset="utf-8" src="https://c.cnzz.com/c.js?web_id=1281334347&amp;t=z"></script><script src="https://v1.cnzz.com/z.js?id=1281334347&amp;async=1"></script><script>
+var _czc = _czc || [];
+(function () {
+	var um = document.createElement("script");
+	um.src = "https://v1.cnzz.com/z.js?id=1281334347&async=1";
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(um, s);
+})();
+</script>
+<script src="1.js"></script>
+<style>
+    @keyframes shake {
+        0%, 100% { transform: translateX(0) scale(1); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px) scale(1.02); }
+        20%, 40%, 60%, 80% { transform: translateX(5px) scale(0.98); }
+    }
+</style></head>
+<body>
+    <!-- 背景 -->
+    <div class="background">
+        <div class="floating-elements">
+            <!-- 货币符号 -->
+            <div class="money-symbol symbol-1">💰</div>
+            <div class="money-symbol symbol-2">💵</div>
+            <div class="money-symbol symbol-3">💸</div>
+            <div class="money-symbol symbol-4">🤑</div>
+            <div class="money-symbol symbol-5">💎</div>
+            <div class="money-symbol symbol-6">🏦</div>
+            
+            <!-- 股市图表 -->
+            <div class="chart chart-1">📈</div>
+            <div class="chart chart-2">📉</div>
+            <div class="chart chart-3">📊</div>
+            
+            <!-- 隐藏的小丑元素 -->
+            <div class="hidden-clown clown-1">🤡</div>
+            <div class="hidden-clown clown-2">🎪</div>
+            
+            <!-- 几何装饰 -->
+            <div class="geo-shape geo-1"></div>
+            <div class="geo-shape geo-2"></div>
+            <div class="geo-shape geo-3"></div>
+        </div>
+        
+        <!-- 动态网格背景 -->
+        <div class="grid-overlay"></div>
+        
+        <!-- 资本流动效果 -->
+        <div class="capital-flow">
+            <div class="flow-line line-1"></div>
+            <div class="flow-line line-2"></div>
+            <div class="flow-line line-3"></div>
+        </div>
+    </div>
+
+    <!-- 主弹窗 -->
+    <div class="modal-overlay" id="mainModal">
+        <div class="modal" style="transform: scale(1);">
+            <div class="modal-header">
+                <div class="icon">
+                    <img src="https://so1.360tres.com/t018492e733b5784cff.jpg" alt="资本做局器" width="80" height="80">
+                </div>
+                <h1 class="title">资本做局器</h1>
+            </div>
+
+            <div class="modal-body">
+                <div class="buttons-container">
+                    <button class="btn btn-primary" id="startBtn">
+                        <span class="btn-icon">🎯</span>
+                        开始做局
+                    </button>
+                    <button class="btn btn-secondary" id="exitBtn">
+                        <span class="btn-icon">🚪</span>
+                        退出
+                    </button>
+                </div>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-label">做局进度</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                        <div class="progress-text" id="progressText">0%</div>
+                    </div>
+                    <div class="progress-status" id="progressStatus">正在准备资本布局...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成功弹窗 -->
+    <div class="modal-overlay success-modal" id="successModal">
+        <div class="modal success">
+            <div class="success-header">
+                <div class="main-icon">🤡</div>
+            </div>
+            <h2 class="success-title">恭喜！做局成功！</h2>
+            <div class="success-message">
+                <p class="main-text">你的时间成功被资本浪费了 <span class="time-highlight">15秒</span></p>
+                <p class="sub-text">🎪 资本家笑了，韭菜哭了</p>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="againBtn">
+                    <span class="btn-icon">🔄</span>
+                    再来一次
+                </button>
+                <button class="btn btn-secondary" id="shareBtn">
+                    <span class="btn-icon">📢</span>
+                    分享给朋友
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 退出失败弹窗 -->
+    <div class="modal-overlay exit-modal" id="exitModal">
+        <div class="modal exit">
+            <div class="error-icon">❌</div>
+            <h2>无法退出</h2>
+            <p>资本的力量不允许你轻易逃脱</p>
+            <button class="btn btn-secondary" id="backBtn">返回</button>
+        </div>
+    </div>
+        </a>
+    </div>
+
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" preload="auto" loop="">
+        <source src="https://sf5-hl-cdn-tos.douyinstatic.com/obj/ies-music/7224476379310656313.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放。
+    </audio>
+    <script src="script1.js"></script>
+
+</body></html>
